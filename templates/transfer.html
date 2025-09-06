@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="content-container">
+        <h2>Welcome, {{ username }}</h2>
+
+        <p>Account ID: {{ account_id }}</p>
+        <p>Balance: ${{ balance }}</p>
+
+        <!-- Transfer Money Button -->
+        <a href="/transfer">
+            <button>Transfer Money</button>
+        </a>
+
+        <!-- Other actions -->
+        <form method="POST" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</body>
+</html>

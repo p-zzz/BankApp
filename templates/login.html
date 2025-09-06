@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Login</title>
+</head>
+<body>
+    <div class="content-container">
+        <h1>Login</h1>
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        {% if challenge %}
+            <h3>Step 2: Decrypt Challenge</h3>
+            <p>Decrypt the message below using your private key, then enter the result:</p>
+            <pre class="challenge">{{ challenge }}</pre>
+
+            <form method="POST" action="/login">
+                <label>Decrypted Message:</label><br>
+                <input type="text" name="decrypted_response" required><br><br>
+
+                <!-- Retain username and password as hidden fields -->
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" name="password" value="{{ password }}">
+
+
+                <button type="submit">Verify and Login</button>
+            </form>
+        {% else %}
+            <form method="POST" action="/login">
+                <label>Username:</label><br>
+                <input type="text" name="username" required><br><br>
+
+                <label>Password:</label><br>
+                <input type="password" name="password" required><br><br>
+
+                <button type="submit">Next</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>
+

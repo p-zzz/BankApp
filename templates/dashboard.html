@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Your Dashboard</title>
+</head>
+<body>
+    <div class="content-container">
+        <h1>Welcome, {{ username }}</h1>
+        <p>Your balance is: ${{ balance }}</p>
+
+        <!-- Add Balance Button (GET to redisplay dashboard with ?show_add=1) -->
+        <form method="GET" action="/dashboard">
+            <input type="hidden" name="show_add" value="1">
+            <button type="submit">Add Balance</button>
+        </form>
+
+        <!-- Add Balance Form -->
+        {% if show_add %}
+        <form method="POST" action="/dashboard">
+            <label>Enter amount to add:</label>
+            <input type="number" name="amount" step="0.01" required>
+            <button type="submit">Confirm</button>
+        </form>
+        {% endif %}
+
+        <!-- Add Transfers button -->
+        <form method="POST" action="/transfer">
+            <button type="submit">Transfer money</button>
+        </form>
+
+        <!-- Logout -->
+        <form method="POST" action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</body>
+</html>
+

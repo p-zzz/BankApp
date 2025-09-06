@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Register</title>
+</head>
+<body>
+    <div class="content-container">
+        <h2>Create a New Account</h2>
+
+        {% if error %}
+            <p style="color:red">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+            <p style="color:green">{{ success }}</p>
+        {% endif %}
+
+        <form method="POST" action="/register">
+            <label>Username:</label><br>
+            <input type="text" name="username" required><br><br>
+
+            <label>Password:</label><br>
+            <input type="password" name="password" required><br><br>
+
+            <label>Confirm Password:</label><br>
+            <input type="password" name="confirm_password" required><br><br>
+
+            <label>Public Key (ASCII-armored):</label><br>
+            <textarea name="public_key" rows="10" cols="50" required></textarea><br><br>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p><a href="/login">Back to login</a></p>
+    </div>
+</body>
+</html>

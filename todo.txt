@@ -1,0 +1,27 @@
+✅ Cookie-based session tracking (secure, HttpOnly, same-site, short TTL)	# DONE
+
+🔒 Implement server-side session expiry / session store			# DONE
+
+🛡️ Sanitize/validate all inputs (you’re already thinking about this)
+
+📂 Backup + restore mechanism for data files
+
+🔎 Admin interface for reviewing accounts / balances
+
+💅 Frontend Enhancements
+
+Consistent layout using base template ({% extends %})
+
+Responsive CSS (mobile-friendly)
+
+Confirm dialogs for transfers, logout
+
+Error display polishing
+
+🔄 Possible Refactors
+
+Move encryption/decryption logic to its own EncryptionManager class		# DONE
+
+Switch to SQL (e.g., SQLite or PostgreSQL) when scaling
+
+Use ORM like SQLAlchemy (if sticking with Flask)

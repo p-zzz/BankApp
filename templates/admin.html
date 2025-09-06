@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #1e1e1e; color: #eee; padding: 2em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { border: 1px solid #444; padding: 0.5em; text-align: left; }
+        th { background: #333; }
+        tr:nth-child(even) { background: #2c2c2c; }
+    </style>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <p>Review all accounts:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Balance</th>
+                <th>Account ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>${{ user.balance }}</td>
+                <td>{{ user.account_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

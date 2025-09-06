@@ -1,0 +1,14 @@
+# pgp keys
+keys/*.asc
+
+# env files
+.env
+*.env
+
+# compiled python files
+__pycache__/
+*.pyc
+
+# local config
+*.log
+*.sqlite3

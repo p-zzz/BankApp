@@ -1,0 +1,36 @@
+body {
+    background-color: #3c3c3c;
+    color: #e7e7e7;
+}
+
+a {
+    color: #aad8ff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #aad8ff;
+}
+
+a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+pre.challenge {
+    background: #2c2f33;
+    padding: 1em;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    max-width: 100%;
+    margin: 1em 0;
+    border-radius: 8px;
+    color: #ccc;
+}
+
+.content-container {
+    max-width: 600px;
+    margin: 2em auto;
+    padding: 1em;
+    text-align: left;
+}
