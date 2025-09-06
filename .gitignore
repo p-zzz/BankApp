@@ -12,3 +12,7 @@ __pycache__/
 # local config
 *.log
 *.sqlite3
+
+test.py
+todo.txt
+BankApp/
