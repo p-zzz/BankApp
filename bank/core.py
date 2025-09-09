@@ -1,6 +1,7 @@
 import os, uuid, time, hashlib
 from bank.pgp_utils import save_encrypted_json, load_encrypted_json
 from bank.sessions import create
+from decimal import Decimal
 
 
 class BankAccounts:
@@ -39,11 +40,14 @@ class BankAccounts:
     def get_passphrase(self):
         return self.passphrase
     
+    # Remove admin workarounds later
     def get_username(self, session_id):
         if session_id not in self.sessions:
             return None
-        accounts = self.load_accounts()
         account_id = self.sessions[session_id]['account_id']
+        if account_id == 'admin':
+            return 'admin'
+        accounts = self.load_accounts()
         return accounts[account_id]['name']
     
     def hash_credentials(self, username, password):
@@ -84,6 +88,7 @@ class BankAccounts:
             'name': username,
             'balance': 0,
             'public_key': public_key,
+            'history': []
         }
         print("[DEBUG] Users before save:", users)
         print("[DEBUG] Accounts before save:", accounts)
@@ -126,7 +131,25 @@ class BankAccounts:
             return None     # Invalid session
         accounts = self.load_accounts()
         account_id = self.sessions[session_id]['account_id']
-        accounts[account_id]['balance'] += amount
+
+        balance = accounts[account_id]['balance']
+
+        # Convert balance to decimal
+        if not isinstance(balance, Decimal):
+            balance = Decimal(str(balance))
+        if not isinstance(amount, Decimal):
+            amount = Decimal(str(amount))
+        
+        new_balance = balance + amount
+
+        accounts[account_id]['balance'] = new_balance
+        accounts[account_id]['history'].append({
+            'type': 'received', 'amount': amount, 'from': 'self', 'timestamp': time.time()
+        })
+
+        # Convert back to float for JSON
+        accounts[account_id]['balance'] = float(accounts[account_id]['balance'])
+
         self.save_accounts(accounts)
         return accounts[account_id]['balance']
     
@@ -135,6 +158,10 @@ class BankAccounts:
         if session_id not in self.sessions:
             print('[ERROR] Invalid session')
             return {'success': False, 'reason': 'Invalid session'}
+        
+        if not isinstance(amount, Decimal):
+            amount = Decimal(str(amount))
+
         if amount <= 0:
             print('[ERROR] Amount must be positive')
             return {'success': False, 'reason': 'Amount must be positive'}
@@ -156,12 +183,30 @@ class BankAccounts:
         if sender_id == recipient_id:
             print('[ERROR] Cannot transfer to self')
             return {'success': False, 'reason': 'Cannot transfer to self'}
-        if accounts[sender_id]['balance'] < amount:
+        
+        sender_balance = Decimal(str(accounts[sender_id]['balance']))
+        if sender_balance < amount:
             print('[ERROR] Insufficient funds')
             return {'success': False, 'reason': 'Insufficient funds'}
+        
         # Perform transfer
-        accounts[sender_id]['balance'] -= amount
-        accounts[recipient_id]['balance'] += amount
+        recipient_balance = Decimal(str(accounts[recipient_id]['balance']))
+        new_sender_balance = sender_balance - Decimal(str(amount))
+        new_recipient_balance = recipient_balance + Decimal(str(amount))
+
+        accounts[sender_id]['balance'] = new_sender_balance
+        accounts[recipient_id]['balance'] = new_recipient_balance
+
+        # Convert back to float
+        accounts[sender_id]['balance'] = float(accounts[sender_id]['balance'])
+        accounts[recipient_id]['balance'] = float(accounts[recipient_id]['balance'])
+
+        accounts[sender_id]['history'].append({
+            'type': 'sent', 'amount': amount, 'to': recipient_id, 'timestamp': time.time()
+        })
+        accounts[recipient_id]['history'].append({
+            'type': 'sent', 'amount': amount, 'from': sender_id, 'timestamp': time.time()
+        })
 
         self.save_accounts(accounts)
 
@@ -172,3 +217,10 @@ class BankAccounts:
     def is_admin(self, session_id):
         username = self.get_username(session_id)
         return username == 'admin'
+    
+
+    def wipe_data(self):
+        self.save_accounts({})
+        self.save_users({})
+        self.sessions.clear()
+        self.pending_challenges.clear()

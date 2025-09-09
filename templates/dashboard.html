@@ -6,7 +6,7 @@
 </head>
 <body>
     <div class="content-container">
-        <h1>Welcome, {{ username }}</h1>
+        <h1>Account overview</h1>
         <p>Your balance is: ${{ balance }}</p>
 
         <!-- Add Balance Button (GET to redisplay dashboard with ?show_add=1) -->
@@ -33,6 +33,19 @@
         <form method="POST" action="/logout">
             <button type="submit">Logout</button>
         </form>
+
+        <h2>Transfer History</h2>
+        <ul>
+        {% for tx in history|reverse %}
+            <li>
+            {% if tx.type == 'sent' %}
+                Sent ${{ tx.amount }} to {{ tx.to }} at {{ tx.timestamp | timestamp_to_date }}
+            {% else %}
+                Received ${{ tx.amount }} from {{ tx.from }} at {{ tx.timestamp | timestamp_to_date }}
+            {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     </div>
 </body>
 </html>

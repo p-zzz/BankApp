@@ -6,10 +6,15 @@
 </head>
 <body>
     <div class="content-container">
-        <h2>Welcome, {{ username }}</h2>
+        <h2>Transfers</h2>
 
-        <p>Account ID: {{ account_id }}</p>
         <p>Balance: ${{ balance }}</p>
+
+        <label>Enter amount</label><br>
+        <input type="text" name="Enter amount" required><br><br>
+
+        <label>Enter recipient</label><br>
+        <input type="text" name="Recipient" required><br><br>
 
         <!-- Transfer Money Button -->
         <a href="/transfer">

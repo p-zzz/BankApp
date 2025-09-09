@@ -31,5 +31,34 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if confirm_wipe %}
+    <h2>Confirm Wipe</h2>
+    <p>This will permanently delete all users and accounts.</p>
+
+    <form method="post">
+        <input type="hidden" name="action" value="wipe_data">
+        <button type="submit" class="danger-button">Yes</button>
+    </form>
+
+    <form method="get">
+        <button type="submit">Cancel</button>
+    </form>
+
+    {% else %}
+    <!--<h1>Admin Panel</h1>-->
+
+    {% if message %}
+        <p class="success">{{ message }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="action" value="confirm_wipe">
+        <button type="submit" class="danger-button">Wipe All Data</button>
+    </form>
+
+    <!-- Add other admin functions here -->
+    {% endif %}
+
 </body>
 </html>
